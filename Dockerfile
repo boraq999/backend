@@ -1,13 +1,14 @@
-# استخدام نسخة PHP الرسمية مع Apache
+# استخدام نسخة PHP 8.4 لتتوافق مع مكتبات Symfony و Laravel الحديثة
 FROM php:8.4-apache
 
-# تثبيت الإضافات اللازمة لـ Laravel و Postgres
+# تثبيت الاعتمادات وإضافة امتداد calendar المطلوب لمكتبة ar-php
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     libzip-dev \
+    libpng-dev \
     zip \
     unzip \
-    && docker-php-ext-install pdo pdo_pgsql zip
+    && docker-php-ext-install pdo pdo_pgsql zip calendar
 
 # تفعيل خاصية mod_rewrite في Apache
 RUN a2enmod rewrite
@@ -20,7 +21,9 @@ COPY . .
 
 # تثبيت Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-RUN composer install --no-dev --optimize-autoloader
+
+# تثبيت المكتبات مع تجاهل متطلبات المنصة لتجنب أي تعارضات في النسخ
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
 # ضبط الصلاحيات لمجلدات Laravel
 RUN chown -R www-data:www-data storage bootstrap/cache

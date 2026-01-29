@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('store_payments', function (Blueprint $table) {
+            $table->id();
+            $table->string('payment_number', 50)->unique();
+            $table->foreignId('store_id')->constrained('stores');
+            $table->foreignId('marketer_id')->constrained('users');
+            $table->foreignId('keeper_id')->constrained('users');
+            $table->decimal('amount', 12, 2);
+            $table->string('receipt_image', 255);
+            $table->timestamp('created_at')->useCurrent();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('store_payments');
+    }
+};
